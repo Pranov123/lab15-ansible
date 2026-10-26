@@ -1,0 +1,32 @@
+---
+- name: Create main project directory
+  ansible.builtin.file:
+    path: "{{ workspace_path }}"
+    state: directory
+    mode: "{{ dir_mode }}"
+
+- name: Create subdirectories
+  ansible.builtin.file:
+    path: "{{ workspace_path }}/{{ item }}"
+    state: directory
+    mode: "{{ dir_mode }}"
+  loop: "{{ subdirectories }}"
+
+- name: Create project_info.txt
+  ansible.builtin.copy:
+    dest: "{{ workspace_path }}/project_info.txt"
+    content: |
+      Project Name : {{ project_name }}
+      Student Name : {{ student_name }}
+      Purpose      : {{ workspace_purpose }}
+    mode: "{{ file_mode }}"
+
+- name: Create status.txt in reports directory
+  ansible.builtin.copy:
+    dest: "{{ workspace_path }}/reports/status.txt"
+    content: "Workspace has been configured successfully by Ansible.\n"
+    mode: "{{ file_mode }}"
+
+- name: Display completion message
+  ansible.builtin.debug:
+    msg: "Project workspace '{{ project_name }}' is ready at {{ workspace_path }}"

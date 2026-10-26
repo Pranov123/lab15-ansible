@@ -1,0 +1,46 @@
+---
+- name: Prepare DevOps project workspace
+  hosts: local
+  gather_facts: true
+
+  vars:
+    project_name: "DevOps Project Workspace"
+    student_name: "Pranov"
+    workspace_path: "{{ ansible_facts['env']['HOME'] }}/devops_project"
+    subdirectories:
+      - src
+      - logs
+      - reports
+
+  tasks:
+    - name: Create main project directory
+      ansible.builtin.file:
+        path: "{{ workspace_path }}"
+        state: directory
+        mode: "0755"
+
+    - name: Create subdirectories (src, logs, reports)
+      ansible.builtin.file:
+        path: "{{ workspace_path }}/{{ item }}"
+        state: directory
+        mode: "0755"
+      loop: "{{ subdirectories }}"
+
+    - name: Create project_info.txt
+      ansible.builtin.copy:
+        dest: "{{ workspace_path }}/project_info.txt"
+        content: |
+          Project Name : {{ project_name }}
+          Student Name : {{ student_name }}
+          Purpose      : Standard development workspace automated using Ansible
+        mode: "0644"
+
+    - name: Create status.txt in reports directory
+      ansible.builtin.copy:
+        dest: "{{ workspace_path }}/reports/status.txt"
+        content: "Workspace has been configured successfully by Ansible.\n"
+        mode: "0644"
+
+    - name: Display completion message
+      ansible.builtin.debug:
+        msg: "Project workspace '{{ project_name }}' is ready at {{ workspace_path }}"

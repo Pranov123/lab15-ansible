@@ -1,0 +1,15 @@
+---
+# Default variables for the project_workspace role.
+# Override any of these in site.yml, inventory, or with -e on the command line.
+project_name: "DevOps Project Workspace"
+student_name: "Pranov"
+workspace_purpose: "Standard development workspace automated using Ansible"
+workspace_path: "{{ ansible_facts['env']['HOME'] }}/devops_project"
+
+subdirectories:
+  - src
+  - logs
+  - reports
+
+dir_mode: "0755"
+file_mode: "0644"

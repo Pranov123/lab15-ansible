@@ -1,0 +1,46 @@
+---
+- name: Verify project workspace
+  hosts: local
+  gather_facts: true
+
+  vars:
+    workspace_path: "{{ ansible_facts['env']['HOME'] }}/devops_project"
+    expected_paths:
+      - "{{ workspace_path }}"
+      - "{{ workspace_path }}/src"
+      - "{{ workspace_path }}/logs"
+      - "{{ workspace_path }}/reports"
+      - "{{ workspace_path }}/project_info.txt"
+      - "{{ workspace_path }}/reports/status.txt"
+
+  tasks:
+    - name: Display system information
+      ansible.builtin.debug:
+        msg:
+          - "Hostname     : {{ ansible_facts['hostname'] }}"
+          - "OS           : {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "Kernel       : {{ ansible_facts['kernel'] }}"
+          - "Architecture : {{ ansible_facts['architecture'] }}"
+          - "Python       : {{ ansible_facts['python_version'] }}"
+          - "Memory (MB)  : {{ ansible_facts['memtotal_mb'] }}"
+
+    - name: Check workspace paths
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ expected_paths }}"
+      register: path_checks
+
+    - name: Report each path
+      ansible.builtin.debug:
+        msg: "{{ item.item }} -> {{ 'directory' if item.stat.isdir else 'file' }}, mode {{ item.stat.mode }}"
+      loop: "{{ path_checks.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when: item.stat.exists
+
+    - name: Confirm all paths exist
+      ansible.builtin.assert:
+        that:
+          - path_checks.results | map(attribute='stat.exists') | select | list | length == expected_paths | length
+        fail_msg: "One or more workspace paths are missing"
+        success_msg: "All {{ expected_paths | length }} workspace directories and files exist"

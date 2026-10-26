@@ -1,0 +1,7 @@
+---
+- name: Configure project workspace using the project_workspace role
+  hosts: local
+  gather_facts: true
+
+  roles:
+    - project_workspace
